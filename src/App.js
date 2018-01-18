@@ -209,7 +209,6 @@ class App extends Component {
     this.setState({
       showListModal: true
     });
-    alert(listTitle);
   }
 
   componentDidMount() {
