@@ -61,7 +61,7 @@ class App extends Component {
       listRef.update({
         title: listTitle
       });
-      alert(listTitle + ' has been edited!');
+      //alert(listTitle + ' has been edited!');
       //this.handleEditClose();
   }
 
@@ -90,14 +90,14 @@ class App extends Component {
   removeList(listId, listTitle) {
       const listRef = firebase.database().ref(`/Lists/${listId}`);
       listRef.remove();
-      alert(listTitle + ' has been deleted!');
+      //alert(listTitle + ' has been deleted!');
       this.handleDelClose();
   }
 
   removeSubList(subListId, subListTitle) {
     const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${subListId}`);
     listRef.remove();
-    alert(subListTitle + ' has been deleted!');
+    //alert(subListTitle + ' has been deleted!');
     this.handleSubListDelClose();
 }
 
@@ -256,7 +256,7 @@ class App extends Component {
       listRef.update({
         title: title
       });
-      alert(this.state.listTitle + ' has been edited!');
+      //alert(this.state.listTitle + ' has been edited!');
       this.handleEditClose();
     this.setState({
       listTitle: ''
