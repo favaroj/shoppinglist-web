@@ -95,7 +95,8 @@ header hr {
   padding-top: 1px;
   padding-bottom: 10px;
   color: #343a40;
-  margin-left: 40px;
+  /*margin-left: 40px;*/
+  margin-left: auto;
   margin-right: 40px;
   text-align: center;
   /*margin-top: 20px;*/
@@ -105,6 +106,13 @@ header hr {
   padding-left: 10px;
     padding-right: 10px;
     width: 80%;
+}
+
+header {
+
+    padding-top: 9px;
+    padding-bottom: 9px;
+
 }
 
 #addItemText {
