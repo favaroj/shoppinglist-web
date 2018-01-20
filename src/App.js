@@ -9,15 +9,25 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      listName: '',
-      lists: [],
       showDelModal: false,
       showEditModal: false,
       showItemEditModal: false,
       showItemDelModal: false,
       showListModal: false,
+      showSubListModal: false,
+      showSubListEditModal: false,
+      showSubListDelModal: false,
+      
+      lists: [],
+      listName: '',
       listTitle: '', 
       listId: '',
+      
+      subLists: [],
+      subListName: '',
+      subListTItle: '',
+      subListId: '',
+      
       items: [],
       itemName: '',
       itemId: '',
@@ -34,6 +44,11 @@ class App extends Component {
     this.handleItemEditShow = this.handleItemEditShow.bind(this);
     this.handleEditClose = this.handleEditClose.bind(this);
     this.handleListClose = this.handleListClose.bind(this);
+    
+    this.handleSubListSubmit = this.handleSubListSubmit.bind(this);
+    this.handleSubListClose = this.handleSubListClose.bind(this);
+    this.handleSubListEditClose = this.handleSubListEditClose.bind(this);
+    this.handleSubListDelClose = this.handleSubListDelClose.bind(this);
     this.handleItemEditClose = this.handleItemEditClose.bind(this);
     this.handleItemDelClose = this.handleItemDelClose.bind(this);
   }
@@ -50,9 +65,16 @@ class App extends Component {
       //this.handleEditClose();
   }
 
+  editSubList(itemId, subListTitle) {
+    const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${itemId}`);
+    listRef.update({
+      title: this.state.subListTitle
+    });
+  }
+
   editItem(itemId, itemTitle) {
     //alert(itemId +':' +this.state.itemTitle);
-    const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${itemId}`);
+    const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${this.state.subListId}/${itemId}`);
     
     listRef.update({
       title: this.state.itemTitle
@@ -60,7 +82,7 @@ class App extends Component {
   }
 
   deleteItem(itemId, itemTitle) {
-    const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${itemId}`);
+    const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${this.state.subListId}/${itemId}`);
     listRef.remove();
     this.handleItemDelClose();
   }
@@ -71,6 +93,13 @@ class App extends Component {
       alert(listTitle + ' has been deleted!');
       this.handleDelClose();
   }
+
+  removeSubList(subListId, subListTitle) {
+    const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${subListId}`);
+    listRef.remove();
+    alert(subListTitle + ' has been deleted!');
+    this.handleSubListDelClose();
+}
 
   handleDelClose() {
 		this.setState({ showDelModal: false });
@@ -91,6 +120,10 @@ class App extends Component {
   handleListClose() {
 		this.setState({ showListModal: false });
   }
+
+  handleSubListClose() {
+		this.setState({ showSubListModal: false });
+  }
   
   handleItemEditClose() {
 		this.setState({ showItemEditModal: false});
@@ -106,6 +139,32 @@ class App extends Component {
       listId: listId
     });
 		this.setState({ showEditModal: true });
+  }
+
+  handleSubListEditClose() {
+    this.setState({ showSubListEditModal: false });
+  }
+
+  handleSubListEditShow(subListId, subListTitle) {
+    this.setState({
+      subListTitle: subListTitle,
+      subListId: subListId
+    });
+    this.setState({ showSubListEditModal: true});
+  }
+
+  handleSubListDelShow(subListId, subListTitle) {
+    this.setState({
+      subListTitle: subListTitle,
+      subListId: subListId,
+      showSubListDelModal: true
+    });
+  }
+
+  handleSubListDelClose() {
+    this.setState({
+      showSubListDelModal: false
+    })
   }
   
   handleItemEditShow(itemId, itemTitle) {
@@ -147,23 +206,42 @@ class App extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const itemsRef = firebase.database().ref('Lists');
+    // Get a key for a new List.
+    var newListKey = itemsRef.push().key;
     const item = {
       title: this.state.listName,
     }
-    itemsRef.push(item);
+    itemsRef.push(item).key;
     this.setState({
       listName: ''
     });
   }
 
-  handleItemSubmit(e) {
+  handleSubListSubmit(e) {
     console.log(this.state.listId);
     e.preventDefault();
     const itemsRef = firebase.database().ref(`Lists/${this.state.listId}`);
     const item = {
       title: this.state.itemName,
     }
+    var newRef = itemsRef.push(item).key;
+    itemsRef.child(newRef).push({
+      title: 'Default Item'
+    });
+    this.setState({
+      itemName: ''
+    });
+  }
+
+  handleItemSubmit(e) {
+    console.log(this.state.listId);
+    e.preventDefault();
+    const itemsRef = firebase.database().ref(`Lists/${this.state.listId}/${this.state.subListId}`);
+    const item = {
+      title: this.state.itemName,
+    }
     itemsRef.push(item);
+    
     this.setState({
       itemName: ''
     });
@@ -188,6 +266,37 @@ class App extends Component {
   showList(listId, listTitle) {
     const listRef = firebase.database().ref('Lists');
     listRef.child(listId).on('value', (snapshot) => {
+        let subLists = snapshot.val();
+        let subListState = [];
+        for (let subList in subLists) {
+          if(typeof(subLists[subList].title) !== 'undefined') {
+            listRef.child(listId).child(subList).on('value', (child) => {
+              let count = child.numChildren();
+              let adjCount = count - 1;
+            subListState.push({
+              id: subList,
+              title: subLists[subList].title,
+              count: adjCount
+            });
+          });
+          }
+        }
+        this.setState({
+          subLists: subListState
+        });
+    });
+    this.setState({
+      listTitle: listTitle,
+      listId: listId
+    });
+    this.setState({
+      showListModal: true
+    });
+  }
+
+  showItems(subListId, subListTitle) {
+    const listRef = firebase.database().ref('Lists');
+    listRef.child(this.state.listId).child(subListId).on('value', (snapshot) => {
         let items = snapshot.val();
         let childState = [];
         for (let item in items) {
@@ -203,11 +312,11 @@ class App extends Component {
         });
     });
     this.setState({
-      listTitle: listTitle,
-      listId: listId
+      subListTitle: subListTitle,
+      subListId: subListId
     });
     this.setState({
-      showListModal: true
+      showSubListModal: true
     });
   }
 
@@ -260,8 +369,8 @@ class App extends Component {
           <ul id="mainList">
             {this.state.lists.map((list) => {
               return (
-                <li className="mainList" key={list.id}>
-                  <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} Item(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} Item(s)</p>}</div><hr style={{marginBottom: '0px'}}/><br/><button onClick={() => this.handleEditShow(list.id, list.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button></button>
+                <li className="mainItems" key={list.id}>
+                  <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} List(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} List(s)</p>}</div></button><button onClick={() => this.handleEditShow(list.id, list.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit Name</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
                 </li>
               )
             })}
@@ -273,6 +382,33 @@ class App extends Component {
         <Modal show={this.state.showListModal} onHide={this.handleListClose}>
 					<Modal.Header closeButton>
 						<Modal.Title id="listModalTitle">{this.state.listTitle}</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+          <form id="addItemDiv" className="jumbotron" onSubmit={this.handleSubListSubmit}>
+          <h3 className="letterSpacing">Add List</h3>
+          <input id="addItemText" type="text" name="itemName" placeholder="New Item" value={this.state.itemName} onChange={this.handleChange}/>
+          <button id="submitBtn" className="btn btn-success btn-sm btn-block">Add</button>
+        </form>
+          <ol style={{fontSize: "20px", textAlign: "center"}}>
+            {this.state.subLists.map((subList) => {
+              return (
+                <li id="items" key={subList.id}>
+                  <button id="listBtns" onClick={() => this.showItems(subList.id, subList.title)}>{subList.title}<div> {subList.count > 0 && <p style={{  color:'red' }}>{subList.count} Item(s)</p>} {subList.count == 0 && <p style={{  color:'green' }}>{subList.count} Item(s)</p>}</div></button><button onClick={() => this.handleSubListEditShow(subList.id, subList.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit Name</button><button onClick={() => this.handleSubListDelShow(subList.id, subList.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
+                  {/*<div><p>{item.title}<button onClick={() => this.handleItemEditShow(item.id, item.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit</button><button onClick={() => this.handleItemDelShow(item.id, item.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button></p></div>*/}
+                </li>
+              )
+            })}
+          </ol>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button onClick={this.handleListClose}>Close</Button>
+					</Modal.Footer>
+				</Modal>
+
+        {/*SHOW SUBLIST MODAL*/}
+        <Modal show={this.state.showSubListModal} onHide={this.handleSubListClose}>
+					<Modal.Header closeButton>
+						<Modal.Title id="listModalTitle">{this.state.subListTitle}</Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
           <form id="addItemDiv" className="jumbotron" onSubmit={this.handleItemSubmit}>
@@ -291,7 +427,7 @@ class App extends Component {
           </ol>
 					</Modal.Body>
 					<Modal.Footer>
-						<Button onClick={this.handleListClose}>Close</Button>
+						<Button onClick={this.handleSubListClose}>Close</Button>
 					</Modal.Footer>
 				</Modal>
 
@@ -319,7 +455,7 @@ class App extends Component {
           <div id="addItemDiv">
           <h3 className="letterSpacing">Edit Item</h3>
           <input id="addItemText" type="text" name="itemTitle" placeholder={this.state.itemTitle} value={this.state.itemTitle} onChange={this.handleChange}/>
-          <button id="submitBtn" onClick={() => this.editItem(this.state.itemId, this.state.idTitle)} className="btn btn-success btn-sm btn-block">Edit</button>
+          <button id="submitBtn" onClick={() => this.editItem(this.state.itemId, this.state.idTitle)} className="btn btn-success btn-sm btn-block">Submit</button>
           </div>
         {/*</form>*/}
           {/*<form id="editItemDiv" className="jumbotron" onSubmit={this.editItem}>
@@ -332,14 +468,47 @@ class App extends Component {
 					</Modal.Footer>
           </Modal>     
       
-        
+        {/*EDIT SUBLIST MODAL*/}
+        <Modal id="modalFormat" show={this.state.showSubListEditModal} onHide={this.handleSubListEditClose}>
+					<Modal.Header closeButton>
+						<Modal.Title id="listModalTitle">{this.state.subListTitle}</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+          <div id="addItemDiv">
+          <h3 className="letterSpacing">Edit The List Name:</h3>
+          {/*<form id="createListDiv" className="jumbotron" onSubmit={this.editList}>*/}
+          
+            <input id="submitItem" type="text" name="subListTitle" placeholder={this.state.subListTitle} value={this.state.subListTitle} onChange={this.handleChange} />
+						<button id="submitBtn" onClick={() => this.editSubList(this.state.subListId, this.state.subListTitle)} className="btn btn-success btn-sm">Submit</button>
+          </div>
+          {/*</form>*/}
+					</Modal.Body>
+					<Modal.Footer>  
+						<Button onClick={this.handleSubListEditClose}>Close</Button>
+					</Modal.Footer>
+          </Modal> 
+
+        {/*DELETE SUBLIST MODAL*/}
+        <Modal show={this.state.showSubListDelModal} onHide={this.handleSubListDelClose}>
+					<Modal.Header closeButton>
+						<Modal.Title id="listModalTitle">{this.state.subListTitle}</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+						<h4>Are you sure you would like to delete <strong>{this.state.subListTitle}</strong>?</h4>
+					</Modal.Body>
+					<Modal.Footer>
+          <button onClick={() => this.removeSubList(this.state.subListId, this.state.subListTitle)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
+						<Button onClick={this.handleSubListDelClose}>Close</Button>
+					</Modal.Footer>
+				</Modal>    
+
         {/*DELETE LIST MODAL*/}
         <Modal show={this.state.showDelModal} onHide={this.handleDelClose}>
 					<Modal.Header closeButton>
 						<Modal.Title id="listModalTitle">{this.state.listTitle}</Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
-						<h4>Are you sure you would like to delete {this.state.listTitle}?</h4>
+						<h4>Are you sure you would like to delete <strong>{this.state.listTitle}</strong>?</h4>
 					</Modal.Body>
 					<Modal.Footer>
           <button onClick={() => this.removeList(this.state.listId, this.state.listTitle)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
@@ -353,11 +522,14 @@ class App extends Component {
 						<Modal.Title id="listModalTitle">{this.state.listTitle}</Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
-          <h4 style={{textAlign: "center"}}>Edit The List Name:</h4>
-          <form id="createListDiv" className="jumbotron" onSubmit={this.editList}>
+          <div id="addItemDiv">
+          <h3 className="letterSpacing">Edit The List Name:</h3>
+          {/*<form id="createListDiv" className="jumbotron" onSubmit={this.editList}>*/}
+         
             <input id="submitText" type="text" name="listTitle" placeholder={this.state.listTitle} value={this.state.listTitle} onChange={this.handleChange} />
-						<button onClick={() => this.editList(this.state.listId, this.state.listTitle)} className="btn btn-success btn-sm">Edit</button>
-          </form>
+						<button id="submitBtn" onClick={() => this.editList(this.state.listId, this.state.listTitle)} className="btn btn-success btn-sm">Submit</button>
+          </div>
+          {/*</form>*/}
 					</Modal.Body>
 					<Modal.Footer>  
 						<Button onClick={this.handleEditClose}>Close</Button>
