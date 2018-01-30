@@ -17,17 +17,17 @@ class App extends Component {
       showSubListModal: false,
       showSubListEditModal: false,
       showSubListDelModal: false,
-      
+
       lists: [],
       listName: '',
-      listTitle: '', 
+      listTitle: '',
       listId: '',
-      
+
       subLists: [],
       subListName: '',
       subListTItle: '',
       subListId: '',
-      
+
       items: [],
       itemName: '',
       itemId: '',
@@ -38,13 +38,13 @@ class App extends Component {
     this.handleItemSubmit = this.handleItemSubmit.bind(this);
     this.handleEditSubmit = this.handleEditSubmit.bind(this);
     this.handleDelShow = this.handleDelShow.bind(this);
-    
+
     this.handleDelClose = this.handleDelClose.bind(this);
     this.handleEditShow = this.handleEditShow.bind(this);
     this.handleItemEditShow = this.handleItemEditShow.bind(this);
     this.handleEditClose = this.handleEditClose.bind(this);
     this.handleListClose = this.handleListClose.bind(this);
-    
+
     this.handleSubListSubmit = this.handleSubListSubmit.bind(this);
     this.handleSubListClose = this.handleSubListClose.bind(this);
     this.handleSubListEditClose = this.handleSubListEditClose.bind(this);
@@ -75,7 +75,7 @@ class App extends Component {
   editItem(itemId, itemTitle) {
     //alert(itemId +':' +this.state.itemTitle);
     const listRef = firebase.database().ref(`/Lists/${this.state.listId}/${this.state.subListId}/${itemId}`);
-    
+
     listRef.update({
       title: this.state.itemTitle
     });
@@ -112,11 +112,11 @@ class App extends Component {
     });
 		this.setState({ showDelModal: true });
   }
-  
+
   handleEditClose() {
 		this.setState({ showEditModal: false });
   }
-  
+
   handleListClose() {
 		this.setState({ showListModal: false });
   }
@@ -124,11 +124,11 @@ class App extends Component {
   handleSubListClose() {
 		this.setState({ showSubListModal: false });
   }
-  
+
   handleItemEditClose() {
 		this.setState({ showItemEditModal: false});
   }
-  
+
   handleItemDelClose() {
 		this.setState({ showItemDelModal: false});
 	}
@@ -166,7 +166,7 @@ class App extends Component {
       showSubListDelModal: false
     })
   }
-  
+
   handleItemEditShow(itemId, itemTitle) {
     this.setState({
       itemTitle: itemTitle,
@@ -225,9 +225,9 @@ class App extends Component {
       title: this.state.itemName,
     }
     var newRef = itemsRef.push(item).key;
-    itemsRef.child(newRef).push({
+    /*itemsRef.child(newRef).push({
       title: 'Default Item'
-    });
+    });*/
     this.setState({
       itemName: ''
     });
@@ -241,7 +241,7 @@ class App extends Component {
       title: this.state.itemName,
     }
     itemsRef.push(item);
-    
+
     this.setState({
       itemName: ''
     });
@@ -337,7 +337,7 @@ class App extends Component {
               count: adjCount
             });
           })
-          
+
         }
       }
       this.setState({
@@ -352,7 +352,7 @@ class App extends Component {
         <header>
           <div className='wrapper'>
             <img src="shoppingCart-image.png" className="App-logo" alt="logo"/>
-            <h1>List Portal<hr className="hrFormat"/></h1>  
+            <h1>List Portal<hr className="hrFormat"/></h1>
           </div>
         </header>
         <form id="createListDiv" className="jumbotron" onSubmit={this.handleSubmit}>
@@ -370,7 +370,8 @@ class App extends Component {
             {this.state.lists.map((list) => {
               return (
                 <li className="mainItems" key={list.id}>
-                  <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} List(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} List(s)</p>}</div></button><button onClick={() => this.handleEditShow(list.id, list.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit Name</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
+                  <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} List(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} List(s)</p>}</div></button>
+                  <button onClick={() => this.handleEditShow(list.id, list.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit Name</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
                 </li>
               )
             })}
@@ -420,7 +421,7 @@ class App extends Component {
             {this.state.items.map((item) => {
               return (
                 <li id="items" key={item.id}>
-                  <div><p>{item.title}<button onClick={() => this.handleItemEditShow(item.id, item.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit</button><button onClick={() => this.handleItemDelShow(item.id, item.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button></p></div>
+                  <div><p>{item.title}<a onClick={() => this.handleItemEditShow(item.id, item.title)} id="editDelBtn" ><i id="editIcon" className="fas fa-edit"></i></a><a onClick={() => this.handleItemDelShow(item.id, item.title)} id="editDelBtn"><i id="delIcon" className="fas fa-trash-alt"></i></a></p></div>
                 </li>
               )
             })}
@@ -463,11 +464,11 @@ class App extends Component {
 						<button onClick={() => this.editItem(this.state.itemId, this.state.idTitle)} className="btn btn-success btn-sm">Edit</button>
           </form>*/}
 					</Modal.Body>
-					<Modal.Footer>  
+					<Modal.Footer>
 						<Button onClick={this.handleItemEditClose}>Close</Button>
 					</Modal.Footer>
-          </Modal>     
-      
+          </Modal>
+
         {/*EDIT SUBLIST MODAL*/}
         <Modal id="modalFormat" show={this.state.showSubListEditModal} onHide={this.handleSubListEditClose}>
 					<Modal.Header closeButton>
@@ -477,16 +478,16 @@ class App extends Component {
           <div id="addItemDiv">
           <h3 className="letterSpacing">Edit The List Name:</h3>
           {/*<form id="createListDiv" className="jumbotron" onSubmit={this.editList}>*/}
-          
+
             <input id="submitItem" type="text" name="subListTitle" placeholder={this.state.subListTitle} value={this.state.subListTitle} onChange={this.handleChange} />
 						<button id="submitBtn" onClick={() => this.editSubList(this.state.subListId, this.state.subListTitle)} className="btn btn-success btn-sm">Submit</button>
           </div>
           {/*</form>*/}
 					</Modal.Body>
-					<Modal.Footer>  
+					<Modal.Footer>
 						<Button onClick={this.handleSubListEditClose}>Close</Button>
 					</Modal.Footer>
-          </Modal> 
+          </Modal>
 
         {/*DELETE SUBLIST MODAL*/}
         <Modal show={this.state.showSubListDelModal} onHide={this.handleSubListDelClose}>
@@ -500,7 +501,7 @@ class App extends Component {
           <button onClick={() => this.removeSubList(this.state.subListId, this.state.subListTitle)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
 						<Button onClick={this.handleSubListDelClose}>Close</Button>
 					</Modal.Footer>
-				</Modal>    
+				</Modal>
 
         {/*DELETE LIST MODAL*/}
         <Modal show={this.state.showDelModal} onHide={this.handleDelClose}>
@@ -525,16 +526,16 @@ class App extends Component {
           <div id="addItemDiv">
           <h3 className="letterSpacing">Edit The List Name:</h3>
           {/*<form id="createListDiv" className="jumbotron" onSubmit={this.editList}>*/}
-         
+
             <input id="submitText" type="text" name="listTitle" placeholder={this.state.listTitle} value={this.state.listTitle} onChange={this.handleChange} />
 						<button id="submitBtn" onClick={() => this.editList(this.state.listId, this.state.listTitle)} className="btn btn-success btn-sm">Submit</button>
           </div>
           {/*</form>*/}
 					</Modal.Body>
-					<Modal.Footer>  
+					<Modal.Footer>
 						<Button onClick={this.handleEditClose}>Close</Button>
 					</Modal.Footer>
-          </Modal>     
+          </Modal>
       </div>
     );
   }
