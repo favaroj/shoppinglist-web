@@ -257,8 +257,10 @@ class App extends Component {
         title: title
       });
       //alert(this.state.listTitle + ' has been edited!');
-      this.handleEditClose();
+      //this.handleEditClose();
+      this.setState({});
     this.setState({
+      showEditModal: false,
       listTitle: ''
     });
   }
@@ -358,7 +360,7 @@ class App extends Component {
         <form id="createListDiv" className="jumbotron" onSubmit={this.handleSubmit}>
           <h3 className="letterSpacing">Create List</h3>
           <input id="submitText" type="text" name="listName" placeholder="New List" value={this.state.listName} onChange={this.handleChange}/>
-          <button id="submitBtn" className="btn btn-success btn-lg btn-block">Create</button>
+          <button id="submitBtn" className="btn btn-success btn-lg btn-block" >Create</button>
         </form>
         <hr className="hrFormat" style={{marginLeft: '10px', marginRight: '10px', marginBottom: '30px'}}/>
         <section className="jumbotron" id="mainListSection">
@@ -370,7 +372,7 @@ class App extends Component {
             {this.state.lists.map((list) => {
               return (
                 <li className="mainItems" key={list.id}>
-                  <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} List(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} List(s)</p>}</div></button>
+                  <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}{/*<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} List(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} List(s)</p>}</div>*/}</button>
                   <button onClick={() => this.handleEditShow(list.id, list.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit Name</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
                 </li>
               )
@@ -456,7 +458,7 @@ class App extends Component {
           <div id="addItemDiv">
           <h3 className="letterSpacing">Edit Item</h3>
           <input id="addItemText" type="text" name="itemTitle" placeholder={this.state.itemTitle} value={this.state.itemTitle} onChange={this.handleChange}/>
-          <button id="submitBtn" onClick={() => this.editItem(this.state.itemId, this.state.idTitle)} className="btn btn-success btn-sm btn-block">Submit</button>
+          <button id="submitBtn" onClick={() => {this.editItem(this.state.itemId, this.state.idTitle); this.setState({showItemEditModal: false});}} className="btn btn-success btn-sm btn-block" data-dismiss="modal">Submit</button>
           </div>
         {/*</form>*/}
           {/*<form id="editItemDiv" className="jumbotron" onSubmit={this.editItem}>
@@ -480,7 +482,7 @@ class App extends Component {
           {/*<form id="createListDiv" className="jumbotron" onSubmit={this.editList}>*/}
 
             <input id="submitItem" type="text" name="subListTitle" placeholder={this.state.subListTitle} value={this.state.subListTitle} onChange={this.handleChange} />
-						<button id="submitBtn" onClick={() => this.editSubList(this.state.subListId, this.state.subListTitle)} className="btn btn-success btn-sm">Submit</button>
+						<button id="submitBtn" onClick={() => {this.editSubList(this.state.subListId, this.state.subListTitle); this.setState({showSubListEditModal: false});}} className="btn btn-success btn-sm">Submit</button>
           </div>
           {/*</form>*/}
 					</Modal.Body>
@@ -518,7 +520,7 @@ class App extends Component {
 				</Modal>
 
         {/*EDIT LIST MODAL*/}
-        <Modal show={this.state.showEditModal} onHide={this.handleEditClose}>
+        <Modal show={this.state.showEditModal} onHide={this.handleEditClose} data-dismiss="modal">
 					<Modal.Header closeButton>
 						<Modal.Title id="listModalTitle">{this.state.listTitle}</Modal.Title>
 					</Modal.Header>
@@ -528,12 +530,12 @@ class App extends Component {
           {/*<form id="createListDiv" className="jumbotron" onSubmit={this.editList}>*/}
 
             <input id="submitText" type="text" name="listTitle" placeholder={this.state.listTitle} value={this.state.listTitle} onChange={this.handleChange} />
-						<button id="submitBtn" onClick={() => this.editList(this.state.listId, this.state.listTitle)} className="btn btn-success btn-sm">Submit</button>
+						<button id="submitBtn" onClick={() => {this.editList(this.state.listId, this.state.listTitle); this.setState({showEditModal: false});}} className="btn btn-success btn-sm">Submit</button>
           </div>
           {/*</form>*/}
 					</Modal.Body>
 					<Modal.Footer>
-						<Button onClick={this.handleEditClose}>Close</Button>
+						<Button onClick={this.handleEditClose} data-dismiss="modal">Close</Button>
 					</Modal.Footer>
           </Modal>
       </div>
