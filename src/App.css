@@ -166,6 +166,38 @@ header {
   width: 100%;
 }
 
+#submitOrderIndexBtn {
+  margin-left: 10px;
+  margin-top: 10px;
+  color: dodgerblue;
+}
+
+#orderIndex {
+  width: 60px;
+  height: 30px;
+  text-align: center;
+  border-style: solid;
+  border-color: gray;
+  font-size: 20px;
+  
+}
+
+#addOrderIndexDiv {
+  padding-top: 1px;
+  padding-bottom: 10px;
+  color: #343a40;
+  margin-left: auto;
+  margin-right: 40px;
+  text-align: center;
+  width: 50%;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 80%;
+  border-style: solid;
+  border-color: gainsboro;
+}
+
 #items {
   border-radius: 2px;
   padding-left: 6px;

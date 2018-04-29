@@ -574,10 +574,10 @@ class App extends Component {
             <input id="submitText" type="text" name="listTitle" placeholder={this.state.listTitle} value={this.state.listTitle} onChange={this.handleChange} />
 						<button id="submitBtn" onClick={() => {this.editList(this.state.listId, this.state.listTitle); this.setState({showEditModal: false});}} className="btn btn-success btn-sm">Submit</button>
           </div>
-          <div id="addItemDiv">
+          <div id="addOrderIndexDiv">
             <h3 className="letterSpacing">Order Index</h3>
             <input id="orderIndex" type="text" name="mainListOrderIndex" placeholder="1" value={this.state.mainListOrderIndex} onChange={this.handleChange} />
-            <button id="submitOrderIndexBtn" onClick={() => {this.addMainListOrderIndex(this.state.listId, this.state.mainListOrderIndex)}} className="btn btn-success btn-sm">Add Index</button>
+            <button id="submitOrderIndexBtn" onClick={() => {this.addMainListOrderIndex(this.state.listId, this.state.mainListOrderIndex)}} className="">Add Index</button>
           </div>
           {/*</form>*/}
 					</Modal.Body>
