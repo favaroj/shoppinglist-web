@@ -577,7 +577,7 @@ class App extends Component {
           <div id="addOrderIndexDiv">
             <h3 className="letterSpacing">Order Index</h3>
             <input id="orderIndex" type="text" name="mainListOrderIndex" placeholder="1" value={this.state.mainListOrderIndex} onChange={this.handleChange} />
-            <button id="submitOrderIndexBtn" onClick={() => {this.addMainListOrderIndex(this.state.listId, this.state.mainListOrderIndex)}} className="">Add Index</button>
+            <div id="orderIndexBtnDiv"><button id="submitOrderIndexBtn" onClick={() => {this.addMainListOrderIndex(this.state.listId, this.state.mainListOrderIndex)}} className="">Add Index</button></div>
           </div>
           {/*</form>*/}
 					</Modal.Body>
