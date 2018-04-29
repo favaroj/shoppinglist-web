@@ -31,7 +31,9 @@ class App extends Component {
       items: [],
       itemName: '',
       itemId: '',
-      itemTitle: ''
+      itemTitle: '',
+
+      mainListOrderIndex: ''
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -51,6 +53,19 @@ class App extends Component {
     this.handleSubListDelClose = this.handleSubListDelClose.bind(this);
     this.handleItemEditClose = this.handleItemEditClose.bind(this);
     this.handleItemDelClose = this.handleItemDelClose.bind(this);
+
+    this.addMainListOrderIndex = this.addMainListOrderIndex.bind(this);
+    //this.sortArray = this.sortArray.bind(this);
+  }
+
+  addMainListOrderIndex(listId, mainListOrderIndex) {
+    const listRef = firebase.database().ref(`/Lists/${listId}`);
+    const orderIndex = {
+      mainListOrderIndex: this.state.mainListOrderIndex
+    }
+    listRef.update({
+      orderIndex: mainListOrderIndex
+    });
   }
 
   editList(listId, listTitle) {
@@ -133,10 +148,11 @@ class App extends Component {
 		this.setState({ showItemDelModal: false});
 	}
 
-	handleEditShow(listId, listTitle) {
+	handleEditShow(listId, listTitle, orderIndex) {
     this.setState({
       listTitle: listTitle,
-      listId: listId
+      listId: listId,
+      mainListOrderIndex: orderIndex,
     });
 		this.setState({ showEditModal: true });
   }
@@ -322,6 +338,8 @@ class App extends Component {
     });
   }
 
+  
+
   componentDidMount() {
     const listRef = firebase.database().ref('Lists');
     listRef.on('value', (snapshot) => {
@@ -330,23 +348,47 @@ class App extends Component {
       let childState = [];
       for (let list in lists) {
         if(typeof(lists[list].title) !== 'undefined') {
-          listRef.child(list).on('value', (child) => {
+          listRef.child(list).orderByChild('orderIndex').on('value', (child) => {
+            console.log(child.val());
+            /*child.forEach(function(newChild) {
+              console.log(newChild.val());
+            });*/
             let count = child.numChildren();
             let adjCount = count - 1;
             newState.push({
               id: list,
               title: lists[list].title,
-              count: adjCount
+              count: adjCount,
+              orderIndex: lists[list].orderIndex,
             });
           })
 
         }
-      }
+      };
+
+      function sortArray(a, b) {
+        const indexA = a.orderIndex;
+        const indexB = b.orderIndex;
+    
+        let comparison = 0;
+        if (indexA > indexB) {
+          comparison = 1;
+        } else if (indexA < indexB) {
+          comparison = -1;
+        }
+        return comparison;
+      };
+      
+  
+      newState.sort(sortArray);
+      
       this.setState({
         lists: newState
       });
     });
   }
+
+  
 
   render() {
     return (
@@ -373,7 +415,7 @@ class App extends Component {
               return (
                 <li className="mainItems" key={list.id}>
                   <button id="listBtns" onClick={() => this.showList(list.id, list.title)}>{list.title}{/*<div> {list.count > 0 && <p style={{  color:'red' }}>{list.count} List(s)</p>} {list.count == 0 && <p style={{  color:'green' }}>{list.count} List(s)</p>}</div>*/}</button>
-                  <button onClick={() => this.handleEditShow(list.id, list.title)} id="editDelBtn" className="btn btn-success btn-sm">Edit Name</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
+                  <button onClick={() => this.handleEditShow(list.id, list.title, list.orderIndex)} id="editDelBtn" className="btn btn-success btn-sm">Edit</button><button onClick={() => this.handleDelShow(list.id, list.title)} id="editDelBtn" className="btn btn-danger btn-sm">Delete</button>
                 </li>
               )
             })}
@@ -531,6 +573,11 @@ class App extends Component {
 
             <input id="submitText" type="text" name="listTitle" placeholder={this.state.listTitle} value={this.state.listTitle} onChange={this.handleChange} />
 						<button id="submitBtn" onClick={() => {this.editList(this.state.listId, this.state.listTitle); this.setState({showEditModal: false});}} className="btn btn-success btn-sm">Submit</button>
+          </div>
+          <div id="addItemDiv">
+            <h3 className="letterSpacing">Order Index</h3>
+            <input id="orderIndex" type="text" name="mainListOrderIndex" placeholder="1" value={this.state.mainListOrderIndex} onChange={this.handleChange} />
+            <button id="submitOrderIndexBtn" onClick={() => {this.addMainListOrderIndex(this.state.listId, this.state.mainListOrderIndex)}} className="btn btn-success btn-sm">Add Index</button>
           </div>
           {/*</form>*/}
 					</Modal.Body>
