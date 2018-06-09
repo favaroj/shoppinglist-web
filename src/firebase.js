@@ -1,5 +1,6 @@
 import firebase from 'firebase'
 
+
 const config = {
     apiKey: "AIzaSyAGwqziE1aB7oxkAeGAT8EIxRUol6O_fO0",
     authDomain: "shoppinglist-c4690.firebaseapp.com",
@@ -9,4 +10,6 @@ const config = {
     messagingSenderId: "665003354084"
 };
 firebase.initializeApp(config);
+
+
 export default firebase;

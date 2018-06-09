@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "dns": "^0.2.2",
     "firebase": "^4.8.1",
     "gh-pages": "^1.1.0",
+    "pg": "^7.4.3",
+    "pg-promise": "^8.4.3",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.0",
+    "react-color": "^2.14.1",
     "react-dom": "^16.2.0",
     "react-scripts": "1.0.17",
     "reactfire": "^1.0.0"
