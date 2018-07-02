@@ -5,6 +5,8 @@ import firebase from './firebase.js';
 import { Modal } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
 import { SketchPicker } from 'react-color';
+import $ from 'jquery';
+import Confetti from 'react-dom-confetti';
 //const { Pool, Client } = require('pg')
 //const { pg } = require('pg-native')
 //var pg = require('pg');
@@ -46,6 +48,10 @@ class App extends Component {
       foreBtnColor: '',
       subListBackgroundColor: '',
       subListForegroundColor: '',
+
+      showConfetti: false,
+      showSubListConfetti: false,
+      showItemConfettit: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -422,9 +428,23 @@ class App extends Component {
       foregroundColor: '#FFFFFF'
     }
     itemsRef.push(item).key;
+
+    var that = this;
+    $.ajax({
+      url:this.setConfettiState(),
+      success:function() {
+        that.setConfettiState();
+      }
+    });
     this.setState({
       newListNameInput: ''
     });
+  }
+
+  setConfettiState() {
+    this.setState({
+      showConfetti: !this.state.showConfetti
+    })
   }
 
   handleSubListIndexChange() {
@@ -467,8 +487,23 @@ class App extends Component {
     /*itemsRef.child(newRef).push({
       title: 'Default Item'
     });*/
+
+    var that = this;
+    $.ajax({
+      url:this.setSubListConfettiState(),
+      success:function() {
+        that.setSubListConfettiState();
+      }
+    });
+
     this.setState({
       newSubListNameInput: ''
+    });
+  }
+
+  setSubListConfettiState() {
+    this.setState({
+      showSubListConfetti: !this.state.showSubListConfetti
     });
   }
 
@@ -481,8 +516,22 @@ class App extends Component {
     }
     itemsRef.push(item);
 
+    var that = this;
+    $.ajax({
+      url:this.setItemConfettiState(),
+      success:function() {
+        that.setItemConfettiState();
+      }
+    });
+
     this.setState({
       itemName: ''
+    });
+  }
+
+  setItemConfettiState() {
+    this.setState({
+      showItemConfetti: !this.state.showItemConfetti
     });
   }
 
@@ -673,6 +722,13 @@ class App extends Component {
   }
 
   render() {
+    const config = {
+      angle: 45,
+      spread: 55,
+      startVelocity: 55,
+      elementCount: 50,
+      decay: 0.9
+    };
     return (
       <div id='App' className='container-fluid'>
       <header style={{padding: 0}}>
@@ -685,9 +741,10 @@ class App extends Component {
       <form ref="mainListForm" id="createListDiv" className="addItemDiv">
         {/*<h3 className="letterSpacing">Create List</h3>*/}
         <div id="addItemContainer">
-          
+        <Confetti active={ this.state.showConfetti } config={ config }/>
           <input ref="listName" id="submitText" type="text" name="newListNameInput" placeholder="New List" value={this.state.newListNameInput} onChange={this.handleChange.bind(this)}/>
-          <a style={{color: 'darkslategrey'}} onClick={this.handleSubmit.bind(this)}><i style={{color: '#4A96AD'}}className="fas fa-plus fa-3x"></i></a>
+          <a className="addBtn" style={{color: 'darkslategrey'}} onClick={this.handleSubmit.bind(this)}><i style={{color: '#4A96AD'}}className="fas fa-plus fa-3x"></i></a>
+          
         </div>
       </form>
       </div>
@@ -696,7 +753,7 @@ class App extends Component {
         <div className="wrapper">
 
         <h2 className="letterSpacing">Current Lists</h2>
-        <hr className="hrFormat" style={{borderColor: '#343a40', marginLeft: '10px', marginRight: '10px'}}/>
+        <hr className="hrFormat" style={{borderColor: '#343a40', marginLeft: '10px', marginRight: '10px', marginBottom: '5px'}}/>
         <ul id="mainList">
           {this.state.lists.map((list) => {
             return (
@@ -723,15 +780,16 @@ class App extends Component {
 						<div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 0}} >
               {/*<a style={{fontSize: '18!important'}}><i className="far fa-caret-square-down fa-2x"></i></a>*/}
               <Modal.Title id="listModalTitle">{this.state.listTitle}</Modal.Title>
-              <a onClick={this.handleEditShow.bind(this, this.state.listId, this.state.listTitle, this.state.mainListOrderIndex, this.state.backgroundColor, this.state.foregroundColor)} id="editMainListBtn" ><i id="editIcon" className="fas fa-edit fa-2x"></i></a>
+              <a onClick={this.handleEditShow.bind(this, this.state.listId, this.state.listTitle, this.state.mainListOrderIndex, this.state.backgroundColor, this.state.foregroundColor)} id="editMainListBtn"><i id="editIcon" className="fas fa-edit fa-2x" style={{color: 'green'}}></i></a>
             </div>
           </Modal.Header>
 					<Modal.Body style={{backgroundColor: '#4A96AD'}}>
           <form ref="subListForm" id="createListDiv" className="addItemDiv" style={{marginTop: 0, marginBottom: 10}}>
             {/*<h3 className="letterSpacing">Add List</h3>*/}
             <div id="addItemContainer">
+              <Confetti active={ this.state.showSubListConfetti } config={ config }/>
               <input ref="subListName" id="submitText" style={{padding: 0}} type="text" name="newSubListNameInput" placeholder="New Sub-List" value={this.state.newSubListNameInput} onChange={this.handleChange.bind(this)}/>
-              <a style={{color: 'darkslategrey'}} onClick={this.handleSubListSubmit.bind(this)}><i className="fas fa-plus fa-3x"></i></a>
+              <a className="addBtn" style={{color: 'darkslategrey'}} onClick={this.handleSubListSubmit.bind(this)}><i className="fas fa-plus fa-3x"></i></a>
             </div>
           </form>
           <div style={{borderBottom: 'solid 1px', marginBottom: 20, color: 'black'}}></div>
@@ -796,15 +854,16 @@ class App extends Component {
           <a id="closeEditBtn" onClick={this.handleSubListClose}><i className="fas fa-times fa-2x"></i></a>
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 0}}>
             <Modal.Title id="listModalTitle">{this.state.subListTitle}</Modal.Title>
-            <a onClick={this.handleSubListEditShow.bind(this, this.state.subListId, this.state.subListTitle, this.state.subListOrderIndex, this.state.subListBackgroundColor, this.state.subListForegroundColor)} id="editDelBtn" style={{float: 'right'}}><i id="editIcon" className="fas fa-edit fa-2x"></i></a>
+            <a onClick={this.handleSubListEditShow.bind(this, this.state.subListId, this.state.subListTitle, this.state.subListOrderIndex, this.state.subListBackgroundColor, this.state.subListForegroundColor)} id="editDelBtn" style={{float: 'right'}}><i id="editIcon" className="fas fa-edit fa-2x" style={{color: 'green'}}></i></a>
             </div>
 						
 					</Modal.Header>
 					<Modal.Body style={{backgroundColor: '#4A96AD'}}>
           <form id="createListDiv" className="addItemDiv" style={{marginTop: 0, marginBottom: 10}} onSubmit={this.handleItemSubmit}>
           <div id="addItemContainer">
+          <Confetti active={ this.state.showItemConfetti } config={ config }/>
           <input id="submitText" type="text" name="itemName" placeholder="New Item" value={this.state.itemName} onChange={this.handleChange}/>
-          <a style={{color: 'darkslategrey'}} onClick={this.handleItemSubmit}><i className="fas fa-plus fa-3x"></i></a>
+          <a className="addBtn" style={{color: 'darkslategrey'}} onClick={this.handleItemSubmit}><i className="fas fa-plus fa-3x"></i></a>
             </div>
         </form>
         <div style={{borderBottom: 'solid 1px', marginBottom: 20, color: 'black'}}></div>
@@ -812,7 +871,7 @@ class App extends Component {
             {this.state.items.map((item) => {
               return (
                 <li id="items" key={item.id}>
-                  <div><p style={{marginBottom: 0}}>{item.title}<a id="editDelBtn" onClick={() => this.handleItemDelShow(item.id, item.title)} style={{float: 'right', marginLeft: 20}}><i id="delIcon" className="fas fa-trash-alt"></i></a><a onClick={() => this.handleItemEditShow(item.id, item.title)} id="editDelBtn" style={{float: 'right'}}><i id="editIcon" className="fas fa-edit"></i></a></p></div>
+                  <div><p style={{marginBottom: 0}}>{item.title}<a id="editDelBtn" onClick={() => this.handleItemDelShow(item.id, item.title)} style={{float: 'right', marginLeft: 20}}><i id="delIcon" className="fas fa-trash-alt"></i></a><a onClick={() => this.handleItemEditShow(item.id, item.title)} id="editDelBtn" style={{float: 'right', color: 'green'}}><i id="editIcon" className="fas fa-edit" style={{color: 'green'}}></i></a></p></div>
                 </li>
               )
             })}

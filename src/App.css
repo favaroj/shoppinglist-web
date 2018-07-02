@@ -40,10 +40,12 @@ html {
   
   .hrFormat {
     border-color: #343a40;
+    /* margin-bottom: 5px; */
   }
   
   .letterSpacing {
     letter-spacing: '0.3px';
+    margin-top: 0px;
   }
   
   #editIcon {
@@ -63,6 +65,7 @@ html {
     padding-left: 0px!important;
     text-align: center;
     list-style: none;
+    
   }
   
   #mainListBtnContainer {
@@ -107,9 +110,14 @@ html {
     padding-right: 6px;
     padding-top: 12px;
     padding-bottom: 6px;
+    animation: 1s ease-out 0s 1 slideInFromLeft;
     /*margin-bottom: 20px;*/
     /*background-color: rgb(237, 237, 237);
     box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .14), 0 3px 3px -2px rgba(0, 0, 0, .12), 0 1px 8px 0 rgba(0, 0, 0, .2);*/
+  }
+
+  Confetti {
+    position: fixed;
   }
   
   .itemsDiv {
@@ -227,7 +235,11 @@ html {
     width: 100%;
     font-size: 25px;
     flex-direction: row;
+    /* Original box-shadow */
     box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .14), 0 3px 3px -2px rgba(0, 0, 0, .12), 0 1px 8px 0 rgba(0, 0, 0, .2);
+    border-radius: 6px;
+    /* Remove this box-shadow to go back to original */
+    box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, .3), inset 0px 4px 1px 1px white, inset 0px -3px 1px 1px
   }
   
   #mainListBtn {
@@ -272,6 +284,20 @@ html {
   .btn {
     margin-left: 10px;
     background-color: '#4A96AD'
+  }
+
+  .addBtn {
+    background-image: -webkit-linear-gradient(top, #f4f1ee, #fff);
+			background-image: linear-gradient(top, #f4f1ee, #fff);
+			border-radius: 50%;
+			box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, .3), inset 0px 4px 1px 1px white, inset 0px -3px 1px 1px rgba(204,198,197,.5);
+			float:left;
+			/* height: 70px; */
+			/* margin: 0 30px 30px 0; */
+			position: relative;
+			width: 60px;			
+			-webkit-transition: all .1s linear;
+			transition: all .1s linear;
   }
   
   #editDelBtn {
@@ -374,6 +400,7 @@ html {
     font-size: 20px;
     padding-left: 0px!important;
     list-style-type: none;
+    animation: 1s ease-out 0s 1 slideInFromLeft;
   }
   
   #subList {
@@ -381,6 +408,7 @@ html {
     text-align: "center";
     list-style-type: none;
     padding-left: 0px!important;
+    animation: 1s ease-out 0s 1 slideInFromLeft;
   }
   
   .App-logo {
@@ -425,4 +453,13 @@ html {
     width: 60%!important;
   
   }
+  }
+
+  @keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
   }
